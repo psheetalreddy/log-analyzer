@@ -1,1 +1,8 @@
 watchdog
+sentence-transformers
+scikit-learn
+scipy
+nltk
+numpy 
+colorama
+joblib

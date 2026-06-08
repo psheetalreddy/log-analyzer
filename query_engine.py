@@ -15,6 +15,8 @@ import sqlite3
 import os
 import joblib
 
+from nlp_pipeline import get_embedding
+
 
 # ── ANSI colors ───────────────────────────────────────────────────────────────
 class Color:
@@ -66,8 +68,17 @@ class AnomalyDetector:
             return
 
         print(f"[AnomalyDetector] Generating embeddings for {len(log_lines)} training lines...")
-        # ... rest of training code unchanged ...
+        embeddings = []
+        for line in log_lines:
+            emb = get_embedding(line)
+            embeddings.append(emb)
+
+        X = np.array(embeddings, dtype=np.float32)   # what shape will this be?
+        X = normalize(X)  # L2 normalize for better Isolation Forest performance)
+        self._model = IsolationForest(contamination=0.05, random_state=42)
+        self._model.fit(X)
         
+        os.makedirs("models", exist_ok=True)
         joblib.dump(self._model, MODEL_PATH)
         print("[AnomalyDetector] Training complete. Model saved.")
 

@@ -30,6 +30,7 @@ def init_db(db_path: str = DB_PATH) -> sqlite3.Connection:
             level     TEXT,
             message   TEXT,
             tfidf     REAL,
+            tokens    TEXT,  
             embedding BLOB
         )
     """)
@@ -125,8 +126,8 @@ class StorageLayer:
             with self._db_lock:
                 cursor = self._conn.execute(
                     """
-                    INSERT INTO logs (timestamp, hostname, process, pid, level, message, tfidf, embedding)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO logs (timestamp, hostname, process, pid, level, message, tfidf, tokens, embedding)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         enriched_dict["timestamp"],
@@ -136,6 +137,7 @@ class StorageLayer:
                         enriched_dict["level"],
                         enriched_dict["message"],
                         enriched_dict["tfidf_score"],
+                        ",".join(enriched_dict["tokens"]),
                         embedding_blob,
                     )
                 )
